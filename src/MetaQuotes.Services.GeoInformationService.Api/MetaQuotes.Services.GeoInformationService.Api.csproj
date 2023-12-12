@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\citySearchPage.js" />
+    <Content Remove="wwwroot\geoSearchPage.js" />
+    <Content Remove="wwwroot\homePage.js" />
+    <Content Remove="wwwroot\notFoundPage.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.13" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\citySearchPage.js" />
+    <None Include="wwwroot\homePage.js" />
+    <None Include="wwwroot\notFoundPage.js" />
+    <None Include="wwwroot\geoSearchPage.js" />
+    <None Include="wwwroot\app.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MetaQuotes.Services.GeoInformationService.Application\MetaQuotes.Services.GeoInformationService.Application.csproj" />
+    <ProjectReference Include="..\MetaQuotes.Services.GeoInformationService.Infrastructure\MetaQuotes.Services.GeoInformationService.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Exceptions\" />
+  </ItemGroup>
+
+</Project>

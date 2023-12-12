@@ -1,0 +1,12 @@
+﻿version: '3.8'
+
+services:
+
+  geoinformation-service:
+    build: 
+      context: ./ 
+      dockerfile: DockerFile_GeoInformationService
+    ports:
+      - "50001:50001"
+    environment:
+      - DOTNET_ENVIRONMENT=Docker
