@@ -9,7 +9,10 @@
   <ItemGroup>
     <Folder Include="Extensions\" />
     <Folder Include="Exceptions\" />
-    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MetaQuotes.Services.GeoInformationService.Domain\MetaQuotes.Services.GeoInformationService.Domain.csproj" />
   </ItemGroup>
 
 </Project>

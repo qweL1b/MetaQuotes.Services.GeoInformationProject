@@ -1,9 +1,10 @@
 ﻿using System.Text;
+using MetaQuotes.Services.GeoInformationService.Application.Services;
 using MetaQuotes.Services.GeoInformationService.Domain.Models;
 
 namespace MetaQuotes.Services.GeoInformationService.Infrastructure.Services
 {
-    public class GeoBaseService
+    public class GeoBaseService : IGeoSearching, ILoadDatabase
     {
         private Header header = new Header();
         private List<IpRangeRecord> ipRangeRecords = new List<IpRangeRecord>();
@@ -11,96 +12,104 @@ namespace MetaQuotes.Services.GeoInformationService.Infrastructure.Services
 
         Dictionary<string, List<int>> cityIndex = new Dictionary<string, List<int>>();
 
-        public void LoadData(string filePath)
+        public async Task LoadDataAsync(string filePath)
         {
-            using (FileStream fs = new FileStream(filePath, FileMode.Open))
-            using (BinaryReader reader = new BinaryReader(fs))
+            await Task.Run(() =>
             {
-                header.Version = reader.ReadInt32();
-                header.Name = Encoding.ASCII.GetString(reader.ReadBytes(32)).TrimEnd('\0');
-                header.Timestamp = reader.ReadUInt64();
-                header.Records = reader.ReadInt32();
-                header.OffsetRanges = reader.ReadUInt32();
-                header.OffsetCities = reader.ReadUInt32();
-                header.OffsetLocations = reader.ReadUInt32();
-
-                fs.Seek(header.OffsetRanges, SeekOrigin.Begin);
-                for (int i = 0; i < header.Records; i++)
+                using (FileStream fs = new FileStream(filePath, FileMode.Open))
+                using (BinaryReader reader = new BinaryReader(fs))
                 {
-                    IpRangeRecord ipRangeRecord = new IpRangeRecord
-                    {
-                        IpFrom = reader.ReadUInt32(),
-                        IpTo = reader.ReadUInt32(),
-                        LocationIndex = reader.ReadUInt32()
-                    };
-                    ipRangeRecords.Add(ipRangeRecord);
-                }
+                    header.Version = reader.ReadInt32();
+                    header.Name = Encoding.ASCII.GetString(reader.ReadBytes(32)).TrimEnd('\0');
+                    header.Timestamp = reader.ReadUInt64();
+                    header.Records = reader.ReadInt32();
+                    header.OffsetRanges = reader.ReadUInt32();
+                    header.OffsetCities = reader.ReadUInt32();
+                    header.OffsetLocations = reader.ReadUInt32();
 
-                fs.Seek(header.OffsetLocations, SeekOrigin.Begin);
-                for (int i = 0; i < header.Records; i++)
-                {
-                    LocationRecord locationRecord = new LocationRecord
+                    fs.Seek(header.OffsetRanges, SeekOrigin.Begin);
+                    for (int i = 0; i < header.Records; i++)
                     {
-                        Country = Encoding.ASCII.GetString(reader.ReadBytes(8)).TrimEnd('\0'),
-                        Region = Encoding.ASCII.GetString(reader.ReadBytes(12)).TrimEnd('\0'),
-                        Postal = Encoding.ASCII.GetString(reader.ReadBytes(12)).TrimEnd('\0'),
-                        City = Encoding.ASCII.GetString(reader.ReadBytes(24)).TrimEnd('\0'),
-                        Organization = Encoding.ASCII.GetString(reader.ReadBytes(32)).TrimEnd('\0'),
-                        Latitude = reader.ReadSingle(),
-                        Longitude = reader.ReadSingle()
-                    };
-                    locationRecords.Add(locationRecord);
-                }
-
-                for (int i = 0; i < locationRecords.Count; i++)
-                {
-                    var city = locationRecords[i].City;
-                    if (!cityIndex.ContainsKey(city))
-                    {
-                        cityIndex[city] = new List<int>();
+                        IpRangeRecord ipRangeRecord = new IpRangeRecord
+                        {
+                            IpFrom = reader.ReadUInt32(),
+                            IpTo = reader.ReadUInt32(),
+                            LocationIndex = reader.ReadUInt32()
+                        };
+                        ipRangeRecords.Add(ipRangeRecord);
                     }
-                    cityIndex[city].Add(i);
+
+                    fs.Seek(header.OffsetLocations, SeekOrigin.Begin);
+                    for (int i = 0; i < header.Records; i++)
+                    {
+                        LocationRecord locationRecord = new LocationRecord
+                        {
+                            Country = Encoding.ASCII.GetString(reader.ReadBytes(8)).TrimEnd('\0'),
+                            Region = Encoding.ASCII.GetString(reader.ReadBytes(12)).TrimEnd('\0'),
+                            Postal = Encoding.ASCII.GetString(reader.ReadBytes(12)).TrimEnd('\0'),
+                            City = Encoding.ASCII.GetString(reader.ReadBytes(24)).TrimEnd('\0'),
+                            Organization = Encoding.ASCII.GetString(reader.ReadBytes(32)).TrimEnd('\0'),
+                            Latitude = reader.ReadSingle(),
+                            Longitude = reader.ReadSingle()
+                        };
+                        locationRecords.Add(locationRecord);
+                    }
+
+                    for (int i = 0; i < locationRecords.Count; i++)
+                    {
+                        var city = locationRecords[i].City;
+                        if (!cityIndex.ContainsKey(city))
+                        {
+                            cityIndex[city] = new List<int>();
+                        }
+                        cityIndex[city].Add(i);
+                    }
                 }
-            }
+            });
         }
 
-
-        public LocationRecord? FindLocationByIp(string ip)
+        public async Task<LocationRecord?> FindLocationByIpAsync(string ip)
         {
-            uint numericIp = ConvertIpToUint(ip);
-            int low = 0, high = ipRangeRecords.Count - 1;
-
-            while (low <= high)
+            return await Task.Run(() =>
             {
-                int mid = low + (high - low) / 2;
-                IpRangeRecord midRecord = ipRangeRecords[mid];
+                uint numericIp = ConvertIpToUint(ip);
+                int low = 0, high = ipRangeRecords.Count - 1;
 
-                if (numericIp >= midRecord.IpFrom && numericIp <= midRecord.IpTo)
+                while (low <= high)
                 {
-                    return locationRecords[(int)midRecord.LocationIndex];
+                    int mid = low + (high - low) / 2;
+                    IpRangeRecord midRecord = ipRangeRecords[mid];
+
+                    if (numericIp >= midRecord.IpFrom && numericIp <= midRecord.IpTo)
+                    {
+                        return locationRecords[(int)midRecord.LocationIndex];
+                    }
+
+                    if (numericIp < midRecord.IpFrom)
+                    {
+                        high = mid - 1;
+                    }
+                    else
+                    {
+                        low = mid + 1;
+                    }
                 }
 
-                if (numericIp < midRecord.IpFrom)
-                {
-                    high = mid - 1;
-                }
-                else
-                {
-                    low = mid + 1;
-                }
-            }
-
-            return null;
+                return null;
+            });
         }
 
-        public IEnumerable<LocationRecord> FindLocationsByCity(string cityName)
+        public async Task<IEnumerable<LocationRecord>> FindLocationsByCityAsync(string cityName)
         {
-            if (cityIndex.TryGetValue(cityName, out var locationIndexes))
+            return await Task.Run(() =>
             {
-                return locationIndexes.Select(index => locationRecords[index]);
-            }
+                if (cityIndex.TryGetValue(cityName, out var locationIndexes))
+                {
+                    return locationIndexes.Select(index => locationRecords[index]);
+                }
 
-            return Enumerable.Empty<LocationRecord>();
+                return Enumerable.Empty<LocationRecord>();
+            });
         }
 
         private uint ConvertIpToUint(string ip)

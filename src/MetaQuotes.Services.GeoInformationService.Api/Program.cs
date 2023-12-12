@@ -1,6 +1,7 @@
 ﻿
 using System.Net;
 using MetaQuotes.Services.GeoInformationService.Application;
+using MetaQuotes.Services.GeoInformationService.Application.Services;
 using MetaQuotes.Services.GeoInformationService.Infrastructure.Services;
 using Microsoft.AspNetCore.Diagnostics;
 
@@ -13,12 +14,18 @@ namespace MetaQuotes.Services.GeoInformationService.Api
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
+
             builder.Services.AddSingleton<GeoBaseService>();
+            builder.Services.AddSingleton<ILoadDatabase>(provider => provider.GetRequiredService<GeoBaseService>());
+            builder.Services.AddSingleton<IGeoSearching>(provider => provider.GetRequiredService<GeoBaseService>());
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+
+            var geoBaseService = app.Services.GetRequiredService<ILoadDatabase>();
+            geoBaseService.LoadDataAsync("geobase.dat");
 
             app.UseExceptionHandler(appError =>
             {
@@ -46,9 +53,6 @@ namespace MetaQuotes.Services.GeoInformationService.Api
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
-            var geoBaseService = app.Services.GetRequiredService<GeoBaseService>();
-            geoBaseService.LoadData("geobase.dat");
 
             app.UseStaticFiles(); 
 
