@@ -1,9 +1,9 @@
 ﻿export function renderCitySearch() {
     return `
         <div class="search-container">
-            <h1>Поиск по названию города</h1>
-            <input type="text" id="cityInput" class="search-input" placeholder="Введите название города">
-            <button id="searchCityButton" class="search-button">Искать</button>
+            <h1>Search by city name</h1>
+            <input type="text" id="cityInput" class="search-input" placeholder="Enter the name of the city">
+            <button id="searchCityButton" class="search-button">Search</button>
             <div id="cityResults" class="search-results"></div>
         </div>
     `;

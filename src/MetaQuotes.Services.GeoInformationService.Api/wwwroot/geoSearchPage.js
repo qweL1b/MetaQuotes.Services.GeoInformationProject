@@ -1,9 +1,9 @@
 ﻿export function renderGeoSearch() {
     return `
         <div class="search-container">
-            <h1>Поиск Гео-Информации</h1>
-            <input type="text" id="ipInput" class="search-input" placeholder="Введите IP адрес">
-            <button id="searchButton" class="search-button">Искать</button>
+            <h1>Search Geo-Information</h1>
+            <input type="text" id="ipInput" class="search-input" placeholder="Enter IP address">
+            <button id="searchButton" class="search-button">Search</button>
             <div id="results" class="search-results"></div>
         </div>
     `;
