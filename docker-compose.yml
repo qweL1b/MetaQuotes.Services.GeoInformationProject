@@ -7,6 +7,6 @@ services:
       context: ./ 
       dockerfile: DockerFile_GeoInformationService
     ports:
-      - "50001:50001"
+      - "50001:80"
     environment:
       - DOTNET_ENVIRONMENT=Docker

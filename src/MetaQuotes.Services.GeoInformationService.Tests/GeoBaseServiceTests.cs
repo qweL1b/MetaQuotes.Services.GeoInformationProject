@@ -15,7 +15,7 @@ namespace MetaQuotes.Services.GeoInformationService.Tests
         public async Task LoadData_ShouldCorrectlyLoadData(string ip, bool expectedResult)
         {
             var service = new GeoBaseService();
-            await service.LoadDataAsync("geobase.dat");
+            service.LoadData("geobase.dat");
 
             var result = await service.FindLocationByIpAsync(ip);
 

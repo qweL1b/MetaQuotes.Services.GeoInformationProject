@@ -9,7 +9,7 @@ namespace MetaQuotes.Services.GeoInformationService.Domain.Models
     public class HeaderDTO
     {
         public int Version { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public ulong Timestamp { get; set; }
         public int Records { get; set; }
         public uint OffsetRanges { get; set; }

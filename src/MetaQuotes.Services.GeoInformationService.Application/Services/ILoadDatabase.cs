@@ -8,6 +8,6 @@ namespace MetaQuotes.Services.GeoInformationService.Application.Services
 {
     public interface ILoadDatabase
     {
-        Task LoadDataAsync(string filePath);
+        bool LoadData(string filePath);
     }
 }

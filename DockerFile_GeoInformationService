@@ -8,8 +8,8 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["src/MetaQuotes.Services.GeoInformationService.Api/MetaQuotes.Services.GeoInformationService.Api.csproj", "src/MetaQuotes.Services.GeoInformationService.Api/"]
 COPY ["src/MetaQuotes.Services.GeoInformationService.Application/MetaQuotes.Services.GeoInformationService.Application.csproj", "src/MetaQuotes.Services.GeoInformationService.Application/"]
-COPY ["src/MetaQuotes.Services.GeoInformationService.Infrastructure/MetaQuotes.Services.GeoInformationService.Infrastructure.csproj", "src/MetaQuotes.Services.GeoInformationService.Infrastructure/"]
 COPY ["src/MetaQuotes.Services.GeoInformationService.Domain/MetaQuotes.Services.GeoInformationService.Domain.csproj", "src/MetaQuotes.Services.GeoInformationService.Domain/"]
+COPY ["src/MetaQuotes.Services.GeoInformationService.Infrastructure/MetaQuotes.Services.GeoInformationService.Infrastructure.csproj", "src/MetaQuotes.Services.GeoInformationService.Infrastructure/"]
 RUN dotnet restore "src/MetaQuotes.Services.GeoInformationService.Api/MetaQuotes.Services.GeoInformationService.Api.csproj"
 COPY . .
 WORKDIR "/src/src/MetaQuotes.Services.GeoInformationService.Api"
